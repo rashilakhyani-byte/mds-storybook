@@ -2,15 +2,32 @@ import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { ChartBar, CaretDown } from '@phosphor-icons/react';
 import { SubToggle } from '../SubToggle';
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const BAR_DATES = [
+export type ChartType = 'grouped-bar' | 'stacked-bar' | 'line' | 'area';
+export type DataPoint = { t: number; e: number; i: number };
+
+export interface TrafficDistributionWidgetProps {
+  title?: string;
+  icon?: ReactNode;
+  chartType?: ChartType;
+  data?: DataPoint[];
+  dates?: string[];
+  showFilter?: boolean;
+  showViewToggle?: boolean;
+  showLegend?: boolean;
+  legendCount?: 1 | 2 | 3;
+}
+
+// ─── Default data ─────────────────────────────────────────────────────────────
+
+export const DEFAULT_DATES = [
   'Jul 31','Jan 2','Jan 3','Jan 4','Jan 5','Jan 6','Jan 7','Jan 8','Jan 9','Jan 10',
   'Jan 11','Jan 12','Jan 13','Jan 14','Jan 15','Jan 16','Jan 17','Jan 18','Jan 19','Jan 20',
   'Jan 21','Jan 22','Jan 23','Jan 24','Jan 25','Jan 26','Jan 27','Jan 28','Dec 29','Jan 30',
 ];
 
-const BAR_DATA = [
+export const DEFAULT_DATA: DataPoint[] = [
   {t:158,e:109,i:43},{t:109,e:30,i:88},{t:99,e:48,i:59},{t:80,e:48,i:59},{t:121,e:95,i:27},
   {t:95,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},{t:80,e:48,i:59},{t:99,e:48,i:59},
   {t:158,e:109,i:43},{t:95,e:48,i:59},{t:80,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},
@@ -25,30 +42,10 @@ const LEGEND_ITEMS = [
   { key: 'internal' as const, label: 'Internal', color: '#cae8ff' },
 ];
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type ChartType = 'grouped-bar' | 'stacked-bar' | 'line' | 'area';
-
-export interface TrafficDistributionWidgetProps {
-  title?: string;
-  icon?: ReactNode;
-  chartType?: ChartType;
-  showFilter?: boolean;
-  showViewToggle?: boolean;
-  showLegend?: boolean;
-  legendCount?: 1 | 2 | 3;
-}
-
 // ─── Chart helpers ────────────────────────────────────────────────────────────
 
 function roundedTopBar(x: number, y: number, w: number, h: number, r: number): string {
   if (h <= 0) return '';
-  const rr = Math.min(r, h, w / 2);
-  return `M${x},${y + h} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${y + h} Z`;
-}
-
-function roundedTopRect(x: number, y: number, w: number, h: number, r: number): string {
-  if (h <= 0) return `M${x},${y + h} L${x + w},${y + h} Z`;
   const rr = Math.min(r, h, w / 2);
   return `M${x},${y + h} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${y + h} Z`;
 }
@@ -65,8 +62,7 @@ function smoothLinePath(pts: { x: number; y: number }[]): string {
 
 function areaPath(pts: { x: number; y: number }[], baseY: number): string {
   if (pts.length === 0) return '';
-  const line = smoothLinePath(pts);
-  return `${line} L${pts[pts.length - 1].x},${baseY} L${pts[0].x},${baseY} Z`;
+  return `${smoothLinePath(pts)} L${pts[pts.length - 1].x},${baseY} L${pts[0].x},${baseY} Z`;
 }
 
 // ─── TrafficChart ─────────────────────────────────────────────────────────────
@@ -74,7 +70,7 @@ function areaPath(pts: { x: number; y: number }[], baseY: number): string {
 function TrafficChart({
   data, dates, checked, chartType,
 }: {
-  data: typeof BAR_DATA;
+  data: DataPoint[];
   dates: string[];
   checked: { total: boolean; external: boolean; internal: boolean };
   chartType: ChartType;
@@ -89,30 +85,46 @@ function TrafficChart({
     return () => ro.disconnect();
   }, []);
 
-  const H = 240, padL = 44, padR = 8, padT = 8, padB = 56;
+  // Responsive sizing
+  const isNarrow  = w < 480;
+  const isMedium  = w >= 480 && w < 700;
+  const H         = isNarrow ? 160 : isMedium ? 200 : 240;
+  const padL      = isNarrow ? 32 : 44;
+  const padR      = 8;
+  const padT      = 8;
+  const padB      = isNarrow ? 40 : 56;
+  const labelSize = isNarrow ? 7 : 8.5;
+  const yFontSize = isNarrow ? 8 : 10;
+
   const chartW  = Math.max(1, w - padL - padR);
   const chartH  = H - padT - padB;
-  const maxPx   = 158;
   const baseY   = padT + chartH;
-  const yTicks  = [
+  const maxVal  = Math.max(...data.map((d) => d.t), 1);
+
+  const yTicks = [
     { label: '200M', frac: 1 },
     { label: '150M', frac: 0.75 },
     { label: '25M',  frac: 0.125 },
     { label: '0',    frac: 0 },
   ];
+
   const groupW   = chartW / data.length;
   const groupCx  = (i: number) => padL + i * groupW + groupW / 2;
-  const scaleH   = (px: number) => (px / maxPx) * chartH;
-  const scaleY   = (px: number) => baseY - scaleH(px);
+  const scaleH   = (val: number) => (val / maxVal) * chartH;
+  const scaleY   = (val: number) => baseY - scaleH(val);
 
-  // grouped-bar layout
-  const barW     = Math.max(3, groupW * 0.22);
+  // Grouped-bar geometry
+  const barW     = Math.max(2, groupW * 0.22);
   const barGap   = Math.max(1, groupW * 0.04);
   const groupPad = (groupW - 3 * barW - 2 * barGap) / 2;
 
-  // stacked-bar layout — single wide bar per group
+  // Stacked-bar geometry
   const stackBarW = Math.max(4, groupW * 0.5);
   const stackBarX = (i: number) => padL + i * groupW + (groupW - stackBarW) / 2;
+
+  // Responsive x-axis: skip labels so they don't overlap
+  const minLabelSpacing = isNarrow ? 28 : isMedium ? 22 : 16;
+  const labelStep = Math.max(1, Math.ceil((data.length * minLabelSpacing) / chartW));
 
   const SERIES = [
     { key: 'total'    as const, dKey: 't' as const, color: '#008ff8', strokeW: 2   },
@@ -132,15 +144,19 @@ function TrafficChart({
                 <line x1={padL} x2={w - padR} y1={y} y2={y}
                   stroke={frac === 0 ? '#c4c7cf' : '#e0e1e9'}
                   strokeDasharray={frac === 0 ? undefined : '3 3'} />
-                <text x={padL - 6} y={y + 4} textAnchor="end" fontSize="10" fill="#6c6e79" fontFamily="'JetBrains Mono',monospace">
+                <text x={padL - 4} y={y + 4} textAnchor="end"
+                  fontSize={yFontSize} fill="#6c6e79" fontFamily="'JetBrains Mono',monospace">
                   {label}
                 </text>
               </g>
             );
           })}
 
-          <text x={12} y={padT + chartH / 2} fontSize="10" fill="#626978" textAnchor="middle"
-            transform={`rotate(-90 12 ${padT + chartH / 2})`}>Traffic</text>
+          {/* y-axis "Traffic" rotated label — hidden on very narrow */}
+          {!isNarrow && (
+            <text x={12} y={padT + chartH / 2} fontSize="10" fill="#626978" textAnchor="middle"
+              transform={`rotate(-90 12 ${padT + chartH / 2})`}>Traffic</text>
+          )}
 
           {/* ── Grouped bar ── */}
           {chartType === 'grouped-bar' && data.map((d, gi) => {
@@ -162,7 +178,7 @@ function TrafficChart({
             );
           })}
 
-          {/* ── Stacked bar (internal bottom, external on top, total = full height outline) ── */}
+          {/* ── Stacked bar ── */}
           {chartType === 'stacked-bar' && data.map((d, gi) => {
             const bx = stackBarX(gi);
             const iH = checked.internal ? scaleH(d.i) : 0;
@@ -170,18 +186,14 @@ function TrafficChart({
             const tH = checked.total    ? scaleH(d.t) : 0;
             return (
               <g key={gi}>
-                {/* internal segment (bottom) */}
-                {iH > 0 && (
-                  <rect x={bx} y={baseY - iH} width={stackBarW} height={iH} fill="#cae8ff" />
-                )}
-                {/* external segment (on top of internal) */}
+                {iH > 0 && <rect x={bx} y={baseY - iH} width={stackBarW} height={iH} fill="#cae8ff" />}
                 {eH > 0 && (
-                  <path d={roundedTopRect(bx, baseY - iH - eH, stackBarW, eH, Math.min(stackBarW / 2, 3))} fill="#78bbfa" />
+                  <path fill="#78bbfa"
+                    d={roundedTopBar(bx, baseY - iH - eH, stackBarW, eH, Math.min(stackBarW / 2, 3))} />
                 )}
-                {/* total outline (full height) */}
                 {tH > 0 && (
-                  <path d={roundedTopRect(bx, baseY - tH, stackBarW, tH, Math.min(stackBarW / 2, 3))}
-                    fill="none" stroke="#008ff8" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <path fill="none" stroke="#008ff8" strokeWidth="1.5" strokeDasharray="3 2"
+                    d={roundedTopBar(bx, baseY - tH, stackBarW, tH, Math.min(stackBarW / 2, 3))} />
                 )}
               </g>
             );
@@ -203,19 +215,20 @@ function TrafficChart({
             const pts = data.map((d, i) => ({ x: groupCx(i), y: scaleY(d[s.dKey]) }));
             return (
               <g key={s.key}>
-                <path d={areaPath(pts, baseY)} fill={s.color} opacity={si === 0 ? 0.5 : 0.65} />
+                <path d={areaPath(pts, baseY)} fill={s.color} opacity={si === 0 ? 0.45 : 0.6} />
                 <path d={smoothLinePath(pts)} fill="none"
                   stroke={s.color} strokeWidth={s.strokeW} strokeLinecap="round" strokeLinejoin="round" />
               </g>
             );
           })}
 
-          {/* x-axis date labels */}
+          {/* x-axis date labels — thinned based on available width */}
           {dates.map((date, i) => {
+            if (i % labelStep !== 0) return null;
             const cx = groupCx(i);
-            const ly = baseY + 10;
+            const ly = baseY + 8;
             return (
-              <text key={i} x={cx} y={ly} fontSize="8.5" fill="#6c6e79" textAnchor="end"
+              <text key={i} x={cx} y={ly} fontSize={labelSize} fill="#6c6e79" textAnchor="end"
                 transform={`rotate(-55 ${cx} ${ly})`}>{date}</text>
             );
           })}
@@ -231,47 +244,48 @@ const BAR_TYPES: ChartType[] = ['grouped-bar', 'stacked-bar'];
 const LINE_TYPES: ChartType[] = ['line', 'area'];
 
 export function TrafficDistributionWidget({
-  title        = 'Traffic Distribution',
+  title          = 'Traffic Distribution',
   icon,
-  chartType:   chartTypeProp = 'grouped-bar',
-  showFilter   = true,
+  chartType:     chartTypeProp = 'grouped-bar',
+  data           = DEFAULT_DATA,
+  dates          = DEFAULT_DATES,
+  showFilter     = true,
   showViewToggle = true,
-  showLegend   = true,
-  legendCount  = 3,
+  showLegend     = true,
+  legendCount    = 3,
 }: TrafficDistributionWidgetProps) {
   const [viewBy, setViewBy]             = useState<'Internal – External' | 'Success – Error'>('Internal – External');
   const [showVBDropdown, setShowVBDropdown] = useState(false);
   const [checked, setChecked]           = useState({ total: true, external: true, internal: true });
   const [currentChartType, setCurrentChartType] = useState<ChartType>(chartTypeProp);
 
-  // Sync when Storybook control changes
   useEffect(() => { setCurrentChartType(chartTypeProp); }, [chartTypeProp]);
 
-  const isBarMode = BAR_TYPES.includes(currentChartType);
+  const isBarMode  = BAR_TYPES.includes(currentChartType);
   const toggleMode = isBarMode ? 'breakdown' : 'trend';
 
   function handleToggle(mode: 'breakdown' | 'trend') {
-    if (mode === 'breakdown') {
-      setCurrentChartType(BAR_TYPES.includes(currentChartType) ? currentChartType : 'grouped-bar');
-    } else {
-      setCurrentChartType(LINE_TYPES.includes(currentChartType) ? currentChartType : 'line');
-    }
+    setCurrentChartType(
+      mode === 'breakdown'
+        ? (BAR_TYPES.includes(currentChartType) ? currentChartType : 'grouped-bar')
+        : (LINE_TYPES.includes(currentChartType) ? currentChartType : 'line'),
+    );
   }
 
   const visibleLegends = LEGEND_ITEMS.slice(0, legendCount);
-  const headerIcon = icon ?? <ChartBar size={16} className="text-[#626978]" />;
+  const headerIcon     = icon ?? <ChartBar size={16} className="text-[#626978]" />;
 
   return (
     <div className="flex flex-col rounded-[8px] border border-[#eef1f6] bg-white">
       {/* Header */}
-      <div className="flex h-10 items-center justify-between border-b border-[#eef1f6] px-4">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[#626978]">{headerIcon}</span>
-          <span className="text-[14px] font-semibold text-[#626978]">{title}</span>
+      <div className="flex h-10 min-w-0 items-center justify-between gap-2 border-b border-[#eef1f6] px-4">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="shrink-0 text-[#626978]">{headerIcon}</span>
+          <span className="truncate text-[14px] font-semibold text-[#626978]">{title}</span>
         </div>
 
         {(showFilter || showViewToggle) && (
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {showFilter && (
               <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
@@ -308,14 +322,14 @@ export function TrafficDistributionWidget({
 
       {/* Chart + Legend */}
       <div className="p-4 pb-3">
-        <TrafficChart data={BAR_DATA} dates={BAR_DATES} checked={checked} chartType={currentChartType} />
+        <TrafficChart data={data} dates={dates} checked={checked} chartType={currentChartType} />
 
         {showLegend && (
-          <div className="mt-3 flex items-center justify-center gap-6">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-4">
             {visibleLegends.map((s) => (
               <button key={s.key} onClick={() => setChecked((c) => ({ ...c, [s.key]: !c[s.key] }))}
                 className="flex items-center gap-1.5">
-                <span className="flex h-3 w-3 items-center justify-center rounded-[2px]"
+                <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px]"
                   style={{ background: checked[s.key] ? '#0054b6' : 'transparent', border: checked[s.key] ? 'none' : '1px solid #a5adbd' }}>
                   {checked[s.key] && (
                     <svg width="8" height="8" viewBox="0 0 8 8">
@@ -323,7 +337,7 @@ export function TrafficDistributionWidget({
                     </svg>
                   )}
                 </span>
-                <span className="h-[14px] w-[3px] rounded-[1px]" style={{ background: s.color }} />
+                <span className="h-[14px] w-[3px] shrink-0 rounded-[1px]" style={{ background: s.color }} />
                 <span className="text-[12px] font-semibold text-[#40444c]">{s.label}</span>
               </button>
             ))}
