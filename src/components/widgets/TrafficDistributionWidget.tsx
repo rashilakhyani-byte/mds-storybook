@@ -5,14 +5,19 @@ import { SubToggle } from '../SubToggle';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type ChartType = 'grouped-bar' | 'stacked-bar' | 'line' | 'area';
-export type DataPoint = { t: number; e: number; i: number };
+
+export interface DataPoint {
+  date: string;
+  total: number;
+  external: number;
+  internal: number;
+}
 
 export interface TrafficDistributionWidgetProps {
   title?: string;
   icon?: ReactNode;
   chartType?: ChartType;
   data?: DataPoint[];
-  dates?: string[];
   showFilter?: boolean;
   showViewToggle?: boolean;
   showLegend?: boolean;
@@ -21,19 +26,37 @@ export interface TrafficDistributionWidgetProps {
 
 // ─── Default data ─────────────────────────────────────────────────────────────
 
-export const DEFAULT_DATES = [
-  'Jul 31','Jan 2','Jan 3','Jan 4','Jan 5','Jan 6','Jan 7','Jan 8','Jan 9','Jan 10',
-  'Jan 11','Jan 12','Jan 13','Jan 14','Jan 15','Jan 16','Jan 17','Jan 18','Jan 19','Jan 20',
-  'Jan 21','Jan 22','Jan 23','Jan 24','Jan 25','Jan 26','Jan 27','Jan 28','Dec 29','Jan 30',
-];
-
 export const DEFAULT_DATA: DataPoint[] = [
-  {t:158,e:109,i:43},{t:109,e:30,i:88},{t:99,e:48,i:59},{t:80,e:48,i:59},{t:121,e:95,i:27},
-  {t:95,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},{t:80,e:48,i:59},{t:99,e:48,i:59},
-  {t:158,e:109,i:43},{t:95,e:48,i:59},{t:80,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},
-  {t:80,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},{t:95,e:48,i:59},{t:80,e:48,i:59},
-  {t:80,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},{t:158,e:109,i:43},{t:80,e:48,i:59},
-  {t:80,e:48,i:59},{t:95,e:48,i:59},{t:80,e:48,i:59},{t:95,e:48,i:59},{t:80,e:48,i:59},
+  { date: 'Jul 31', total: 158, external: 109, internal: 43 },
+  { date: 'Jan 2',  total: 109, external: 30,  internal: 88 },
+  { date: 'Jan 3',  total: 99,  external: 48,  internal: 59 },
+  { date: 'Jan 4',  total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 5',  total: 121, external: 95,  internal: 27 },
+  { date: 'Jan 6',  total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 7',  total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 8',  total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 9',  total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 10', total: 99,  external: 48,  internal: 59 },
+  { date: 'Jan 11', total: 158, external: 109, internal: 43 },
+  { date: 'Jan 12', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 13', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 14', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 15', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 16', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 17', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 18', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 19', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 20', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 21', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 22', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 23', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 24', total: 158, external: 109, internal: 43 },
+  { date: 'Jan 25', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 26', total: 80,  external: 48,  internal: 59 },
+  { date: 'Jan 27', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 28', total: 80,  external: 48,  internal: 59 },
+  { date: 'Dec 29', total: 95,  external: 48,  internal: 59 },
+  { date: 'Jan 30', total: 80,  external: 48,  internal: 59 },
 ];
 
 const LEGEND_ITEMS = [
@@ -55,7 +78,7 @@ function smoothLinePath(pts: { x: number; y: number }[]): string {
   return pts.reduce((acc, p, i) => {
     if (i === 0) return `M${p.x},${p.y}`;
     const prev = pts[i - 1];
-    const cpx = (prev.x + p.x) / 2;
+    const cpx  = (prev.x + p.x) / 2;
     return `${acc} C${cpx},${prev.y} ${cpx},${p.y} ${p.x},${p.y}`;
   }, '');
 }
@@ -68,10 +91,9 @@ function areaPath(pts: { x: number; y: number }[], baseY: number): string {
 // ─── TrafficChart ─────────────────────────────────────────────────────────────
 
 function TrafficChart({
-  data, dates, checked, chartType,
+  data, checked, chartType,
 }: {
   data: DataPoint[];
-  dates: string[];
   checked: { total: boolean; external: boolean; internal: boolean };
   chartType: ChartType;
 }) {
@@ -85,7 +107,6 @@ function TrafficChart({
     return () => ro.disconnect();
   }, []);
 
-  // Responsive sizing
   const isNarrow  = w < 480;
   const isMedium  = w >= 480 && w < 700;
   const H         = isNarrow ? 160 : isMedium ? 200 : 240;
@@ -96,10 +117,10 @@ function TrafficChart({
   const labelSize = isNarrow ? 7 : 8.5;
   const yFontSize = isNarrow ? 8 : 10;
 
-  const chartW  = Math.max(1, w - padL - padR);
-  const chartH  = H - padT - padB;
-  const baseY   = padT + chartH;
-  const maxVal  = Math.max(...data.map((d) => d.t), 1);
+  const chartW = Math.max(1, w - padL - padR);
+  const chartH = H - padT - padB;
+  const baseY  = padT + chartH;
+  const maxVal = Math.max(...data.map((d) => d.total), 1);
 
   const yTicks = [
     { label: '200M', frac: 1 },
@@ -108,28 +129,25 @@ function TrafficChart({
     { label: '0',    frac: 0 },
   ];
 
-  const groupW   = chartW / data.length;
+  const groupW   = chartW / Math.max(data.length, 1);
   const groupCx  = (i: number) => padL + i * groupW + groupW / 2;
   const scaleH   = (val: number) => (val / maxVal) * chartH;
   const scaleY   = (val: number) => baseY - scaleH(val);
 
-  // Grouped-bar geometry
   const barW     = Math.max(2, groupW * 0.22);
   const barGap   = Math.max(1, groupW * 0.04);
   const groupPad = (groupW - 3 * barW - 2 * barGap) / 2;
 
-  // Stacked-bar geometry
   const stackBarW = Math.max(4, groupW * 0.5);
   const stackBarX = (i: number) => padL + i * groupW + (groupW - stackBarW) / 2;
 
-  // Responsive x-axis: skip labels so they don't overlap
-  const minLabelSpacing = isNarrow ? 28 : isMedium ? 22 : 16;
+  const minLabelSpacing = isNarrow ? 28 : 18;
   const labelStep = Math.max(1, Math.ceil((data.length * minLabelSpacing) / chartW));
 
   const SERIES = [
-    { key: 'total'    as const, dKey: 't' as const, color: '#008ff8', strokeW: 2   },
-    { key: 'external' as const, dKey: 'e' as const, color: '#78bbfa', strokeW: 1.5 },
-    { key: 'internal' as const, dKey: 'i' as const, color: '#cae8ff', strokeW: 1.5 },
+    { key: 'total'    as const, color: '#008ff8', strokeW: 2   },
+    { key: 'external' as const, color: '#78bbfa', strokeW: 1.5 },
+    { key: 'internal' as const, color: '#cae8ff', strokeW: 1.5 },
   ];
 
   return (
@@ -152,38 +170,35 @@ function TrafficChart({
             );
           })}
 
-          {/* y-axis "Traffic" rotated label — hidden on very narrow */}
           {!isNarrow && (
             <text x={12} y={padT + chartH / 2} fontSize="10" fill="#626978" textAnchor="middle"
               transform={`rotate(-90 12 ${padT + chartH / 2})`}>Traffic</text>
           )}
 
-          {/* ── Grouped bar ── */}
+          {/* Grouped bar */}
           {chartType === 'grouped-bar' && data.map((d, gi) => {
-            const gx   = padL + gi * groupW + groupPad;
+            const gx = padL + gi * groupW + groupPad;
             const bars = [
-              { h: scaleH(d.t), color: '#008ff8', show: checked.total },
-              { h: scaleH(d.e), color: '#78bbfa', show: checked.external },
-              { h: scaleH(d.i), color: '#cae8ff', show: checked.internal },
+              { h: scaleH(d.total),    color: '#008ff8', show: checked.total    },
+              { h: scaleH(d.external), color: '#78bbfa', show: checked.external },
+              { h: scaleH(d.internal), color: '#cae8ff', show: checked.internal },
             ];
             return (
               <g key={gi}>
-                {bars.map((b, bi) =>
-                  b.show && b.h > 0 ? (
-                    <path key={bi} fill={b.color}
-                      d={roundedTopBar(gx + bi * (barW + barGap), baseY - b.h, barW, b.h, Math.min(barW / 2, 3))} />
-                  ) : null
-                )}
+                {bars.map((b, bi) => b.show && b.h > 0 ? (
+                  <path key={bi} fill={b.color}
+                    d={roundedTopBar(gx + bi * (barW + barGap), baseY - b.h, barW, b.h, Math.min(barW / 2, 3))} />
+                ) : null)}
               </g>
             );
           })}
 
-          {/* ── Stacked bar ── */}
+          {/* Stacked bar */}
           {chartType === 'stacked-bar' && data.map((d, gi) => {
             const bx = stackBarX(gi);
-            const iH = checked.internal ? scaleH(d.i) : 0;
-            const eH = checked.external ? scaleH(d.e) : 0;
-            const tH = checked.total    ? scaleH(d.t) : 0;
+            const iH = checked.internal ? scaleH(d.internal) : 0;
+            const eH = checked.external ? scaleH(d.external) : 0;
+            const tH = checked.total    ? scaleH(d.total)    : 0;
             return (
               <g key={gi}>
                 {iH > 0 && <rect x={bx} y={baseY - iH} width={stackBarW} height={iH} fill="#cae8ff" />}
@@ -199,20 +214,20 @@ function TrafficChart({
             );
           })}
 
-          {/* ── Line ── */}
+          {/* Line */}
           {chartType === 'line' && SERIES.map((s) => {
             if (!checked[s.key]) return null;
-            const pts = data.map((d, i) => ({ x: groupCx(i), y: scaleY(d[s.dKey]) }));
+            const pts = data.map((d, i) => ({ x: groupCx(i), y: scaleY(d[s.key]) }));
             return (
               <path key={s.key} d={smoothLinePath(pts)} fill="none"
                 stroke={s.color} strokeWidth={s.strokeW} strokeLinecap="round" strokeLinejoin="round" />
             );
           })}
 
-          {/* ── Area ── */}
+          {/* Area */}
           {chartType === 'area' && SERIES.map((s, si) => {
             if (!checked[s.key]) return null;
-            const pts = data.map((d, i) => ({ x: groupCx(i), y: scaleY(d[s.dKey]) }));
+            const pts = data.map((d, i) => ({ x: groupCx(i), y: scaleY(d[s.key]) }));
             return (
               <g key={s.key}>
                 <path d={areaPath(pts, baseY)} fill={s.color} opacity={si === 0 ? 0.45 : 0.6} />
@@ -222,14 +237,14 @@ function TrafficChart({
             );
           })}
 
-          {/* x-axis date labels — thinned based on available width */}
-          {dates.map((date, i) => {
+          {/* x-axis date labels */}
+          {data.map((d, i) => {
             if (i % labelStep !== 0) return null;
             const cx = groupCx(i);
             const ly = baseY + 8;
             return (
               <text key={i} x={cx} y={ly} fontSize={labelSize} fill="#6c6e79" textAnchor="end"
-                transform={`rotate(-55 ${cx} ${ly})`}>{date}</text>
+                transform={`rotate(-55 ${cx} ${ly})`}>{d.date}</text>
             );
           })}
         </svg>
@@ -240,7 +255,7 @@ function TrafficChart({
 
 // ─── Widget ───────────────────────────────────────────────────────────────────
 
-const BAR_TYPES: ChartType[] = ['grouped-bar', 'stacked-bar'];
+const BAR_TYPES:  ChartType[] = ['grouped-bar', 'stacked-bar'];
 const LINE_TYPES: ChartType[] = ['line', 'area'];
 
 export function TrafficDistributionWidget({
@@ -248,15 +263,14 @@ export function TrafficDistributionWidget({
   icon,
   chartType:     chartTypeProp = 'grouped-bar',
   data           = DEFAULT_DATA,
-  dates          = DEFAULT_DATES,
   showFilter     = true,
   showViewToggle = true,
   showLegend     = true,
   legendCount    = 3,
 }: TrafficDistributionWidgetProps) {
-  const [viewBy, setViewBy]             = useState<'Internal – External' | 'Success – Error'>('Internal – External');
-  const [showVBDropdown, setShowVBDropdown] = useState(false);
-  const [checked, setChecked]           = useState({ total: true, external: true, internal: true });
+  const [viewBy, setViewBy]                     = useState<'Internal – External' | 'Success – Error'>('Internal – External');
+  const [showVBDropdown, setShowVBDropdown]      = useState(false);
+  const [checked, setChecked]                   = useState({ total: true, external: true, internal: true });
   const [currentChartType, setCurrentChartType] = useState<ChartType>(chartTypeProp);
 
   useEffect(() => { setCurrentChartType(chartTypeProp); }, [chartTypeProp]);
@@ -267,13 +281,18 @@ export function TrafficDistributionWidget({
   function handleToggle(mode: 'breakdown' | 'trend') {
     setCurrentChartType(
       mode === 'breakdown'
-        ? (BAR_TYPES.includes(currentChartType) ? currentChartType : 'grouped-bar')
+        ? (BAR_TYPES.includes(currentChartType)  ? currentChartType : 'grouped-bar')
         : (LINE_TYPES.includes(currentChartType) ? currentChartType : 'line'),
     );
   }
 
   const visibleLegends = LEGEND_ITEMS.slice(0, legendCount);
   const headerIcon     = icon ?? <ChartBar size={16} className="text-[#626978]" />;
+
+  // Sanitise data coming from the Storybook object control
+  const safeData: DataPoint[] = Array.isArray(data)
+    ? data.filter((d) => d && typeof d.total === 'number')
+    : DEFAULT_DATA;
 
   return (
     <div className="flex flex-col rounded-[8px] border border-[#eef1f6] bg-white">
@@ -322,7 +341,7 @@ export function TrafficDistributionWidget({
 
       {/* Chart + Legend */}
       <div className="p-4 pb-3">
-        <TrafficChart data={data} dates={dates} checked={checked} chartType={currentChartType} />
+        <TrafficChart data={safeData} checked={checked} chartType={currentChartType} />
 
         {showLegend && (
           <div className="mt-3 flex flex-wrap items-center justify-center gap-4">
