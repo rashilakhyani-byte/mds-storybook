@@ -1,0 +1,42 @@
+import type { CountryDatum } from '../components/WorldMap'
+
+export const overviewCountries: CountryDatum[] = [
+  { iso: 'FR', name: 'France', transactions: 223000, unsecurePct: 84 },
+  { iso: 'IL', name: 'Israel', transactions: 123000, unsecurePct: 64 },
+  { iso: 'MX', name: 'Mexico', transactions: 93000, unsecurePct: 44 },
+  { iso: 'LK', name: 'Sri Lanka', transactions: 72000, unsecurePct: 39 },
+  { iso: 'GB', name: 'United Kingdom', transactions: 54000, unsecurePct: 27 },
+  { iso: 'ZA', name: 'South Africa', transactions: 54000, unsecurePct: 27 },
+  { iso: 'BR', name: 'Brazil', transactions: 12000, unsecurePct: 14 },
+  { iso: 'YE', name: 'Yemen', transactions: 18000, unsecure: true },
+  { iso: 'SY', name: 'Syria', transactions: 22000, unsecure: true },
+  { iso: 'IR', name: 'Iran', transactions: 30000, unsecure: true },
+  { iso: 'IQ', name: 'Iraq', transactions: 21000, unsecure: true },
+  { iso: 'AF', name: 'Afghanistan', transactions: 12000, unsecure: true },
+  { iso: 'CD', name: 'Dem. Rep. Congo', transactions: 8000, unsecure: true },
+  { iso: 'NG', name: 'Nigeria', transactions: 16000, unsecure: true },
+  { iso: 'SO', name: 'Somalia', transactions: 6000, unsecure: true },
+  { iso: 'SD', name: 'Sudan', transactions: 9000, unsecure: true },
+  { iso: 'LY', name: 'Libya', transactions: 8000, unsecure: true },
+  { iso: 'US', name: 'United States of America', transactions: 145000 },
+  { iso: 'CA', name: 'Canada', transactions: 95000 },
+  { iso: 'IN', name: 'India', transactions: 84000 },
+  { iso: 'CN', name: 'China', transactions: 102000 },
+  { iso: 'AU', name: 'Australia', transactions: 67000 },
+  { iso: 'DE', name: 'Germany', transactions: 78000 },
+  { iso: 'ES', name: 'Spain', transactions: 56000 },
+]
+
+export const complianceCountries: CountryDatum[] = [
+  { iso: 'DE', name: 'Germany',                  transactions: 120000, nonCompliantPct: 14, totalRiskPct: 24 },
+  { iso: 'IN', name: 'India',                     transactions: 80000,  nonCompliantPct: 10, totalRiskPct: 18 },
+  { iso: 'BR', name: 'Brazil',                    transactions: 60000,  nonCompliantPct: 8,  totalRiskPct: 12 },
+  { iso: 'US', name: 'United States of America',  transactions: 60000,  nonCompliantPct: 8,  totalRiskPct: 14 },
+  { iso: 'LK', name: 'Sri Lanka',                 transactions: 55000,  nonCompliantPct: 8,  totalRiskPct: 10 },
+  { iso: 'GB', name: 'United Kingdom',            transactions: 55000,  nonCompliantPct: 8,  totalRiskPct: 10 },
+  { iso: 'ZA', name: 'South Africa',              transactions: 55000,  nonCompliantPct: 8,  totalRiskPct: 9  },
+  { iso: 'CN', name: 'China',                     transactions: 55000,  nonCompliantPct: 8,  totalRiskPct: 7  },
+  { iso: 'IR', name: 'Iran',                      transactions: 55000,  nonCompliantPct: 12, totalRiskPct: 18 },
+  { iso: 'SY', name: 'Syria',                     transactions: 55000,  nonCompliantPct: 9,  totalRiskPct: 11 },
+  { iso: 'YE', name: 'Yemen',                     transactions: 55000,  nonCompliantPct: 8,  totalRiskPct: 9  },
+]

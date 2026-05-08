@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Surface */
+  --color-surface-ground: #ffffff;
+  --color-surface-l1: #ffffff;
+  --color-surface-l2: #fbfcff;
+  --color-surface-underground: #f7f8f9;
+  --color-surface-hover: #eef1f6;
+  --color-surface-action: #0054b6;
+  --color-surface-table-header: #eef1f6;
+
+  /* Text */
+  --color-text-stark: #000000;
+  --color-text-default: #202124;
+  --color-text-subtle: #40444c;
+  --color-text-subdued: #626978;
+  --color-text-disabled: #858c9b;
+  --color-text-secondary: #6c6e79;
+  --color-text-primary: #191b23;
+
+  /* Stroke */
+  --color-stroke-section: #cdd2dd;
+  --color-stroke-subsection: #eef1f6;
+  --color-stroke-active: #0265dc;
+
+  /* Brand / Status colors */
+  --color-blue-default: #1c8cfd;
+  --color-blue-dark: #0054b6;
+  --color-blue-medium: #78bbfa;
+  --color-blue-subtle: #cae8ff;
+
+  --color-red-medium: #ff7c65;
+  --color-red-dark: #d31510;
+  --color-red-subtle: #ffddd6;
+  --color-red-mellow: #ff9b88;
+
+  --color-green-subtle: #cef8e0;
+  --color-green-dark: #00653e;
+  --color-green-medium: #67cba2;
+
+  --color-amber-default: #ffc85b;
+  --color-orange-default: #ec7700;
+  --color-orange-medium: #ffa037;
+  --color-yellow-default: #e1cb00;
+  --color-indigo-medium: #4046ca;
+  --color-fuchsia-medium: #fbaef6;
+
+  --color-chart-grid: #e0e1e9;
+  --color-chart-axis: #c4c7cf;
+  --color-gray-100: #e0e1e9;
+}
+
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--color-surface-underground);
+  color: var(--color-text-default);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #cdd2dd; border-radius: 3px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-in-right { animation: slideInRight 0.25s ease-out both; }
+
+@keyframes floatGlow {
+  0%   { transform: translateX(-50%) translateY(0px) scale(1);   opacity: 1; }
+  50%  { transform: translateX(-50%) translateY(-10px) scale(1.08); opacity: 0.75; }
+  100% { transform: translateX(-50%) translateY(0px) scale(1);   opacity: 1; }
+}
+.animate-float-glow { animation: floatGlow 5s ease-in-out infinite; }
