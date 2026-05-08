@@ -1,61 +1,16 @@
-import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { ICON_MAP } from '../utils/phosphorIcons';
-import { IconPickerInline } from '../utils/IconPickerInline';
+import { ICON_MAP, ICON_NAMES } from '../utils/phosphorIcons';
 import { Button, type ButtonVariant, type ButtonSize } from '../../components/ui/Button';
 
 const ICON_SIZE = 12;
 
-function renderIcon(name: string | null) {
-  if (!name) return undefined;
-  const C = ICON_MAP[name];
-  return C ? <C size={ICON_SIZE} weight="bold" /> : undefined;
-}
-
-// ─── Playground wrapper ────────────────────────────────────────────────────────
-function ButtonPlaygroundWrapper({
-  variant, size, children, disabled, loading, fullWidth,
-}: {
-  variant: ButtonVariant;
-  size: ButtonSize;
-  children: string;
-  disabled: boolean;
-  loading: boolean;
-  fullWidth: boolean;
-}) {
-  const [leading, setLeading]   = useState<string | null>(null);
-  const [trailing, setTrailing] = useState<string | null>(null);
-
-  return (
-    <div className="flex flex-col items-center gap-8 p-8">
-      <Button
-        variant={variant}
-        size={size}
-        disabled={disabled}
-        loading={loading}
-        fullWidth={fullWidth}
-        leadingIcon={renderIcon(leading)}
-        trailingIcon={renderIcon(trailing)}
-      >
-        {children}
-      </Button>
-
-      <div className="w-72 rounded-lg border border-[#eef1f6] bg-white p-4 flex flex-col gap-3 shadow-sm">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Icon slots</p>
-        <IconPickerInline value={leading}  onChange={setLeading}  label="Leading" />
-        <IconPickerInline value={trailing} onChange={setTrailing} label="Trailing" />
-      </div>
-    </div>
-  );
-}
-
-// ─── Meta ─────────────────────────────────────────────────────────────────────
 function resolveIcon(name: string | undefined) {
   if (!name || name === '(none)') return undefined;
   const Comp = ICON_MAP[name];
   return Comp ? <Comp size={ICON_SIZE} weight="bold" /> : undefined;
 }
 
+// ─── Meta ─────────────────────────────────────────────────────────────────────
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
   component: Button,
@@ -64,20 +19,23 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          'MDS Button — 4 variants × 3 sizes. Use the icon pickers in the canvas to choose leading/trailing icons.',
+          'MDS Button — 4 variants × 3 sizes. Use the Leading icon / Trailing icon controls to pick any Phosphor icon.',
       },
     },
   },
   argTypes: {
-    variant:      { control: 'select', options: ['primary', 'secondary', 'danger', 'invisible'] },
-    size:         { control: 'radio',  options: ['sm', 'md', 'lg'] },
-    loading:      { control: 'boolean' },
-    disabled:     { control: 'boolean' },
-    fullWidth:    { control: 'boolean' },
-    children:     { control: 'text' },
-    leadingIcon:  { table: { disable: true } },
-    trailingIcon: { table: { disable: true } },
-  },
+    variant:          { control: 'select', options: ['primary', 'secondary', 'danger', 'invisible'] },
+    size:             { control: 'radio',  options: ['sm', 'md', 'lg'] },
+    loading:          { control: 'boolean' },
+    disabled:         { control: 'boolean' },
+    fullWidth:        { control: 'boolean' },
+    children:         { control: 'text' },
+    leadingIcon:      { table: { disable: true } },
+    trailingIcon:     { table: { disable: true } },
+    // Extra args (not component props) — icon name strings
+    leadingIconName:  { control: 'select', options: ICON_NAMES, name: 'Leading icon' },
+    trailingIconName: { control: 'select', options: ICON_NAMES, name: 'Trailing icon' },
+  } as Meta<typeof Button>['argTypes'],
   args: {
     children: 'Button',
     variant: 'secondary',
@@ -85,23 +43,33 @@ const meta: Meta<typeof Button> = {
     loading: false,
     disabled: false,
     fullWidth: false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...({ leadingIconName: '(none)', trailingIconName: '(none)' } as any),
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// ─── Stories ──────────────────────────────────────────────────────────────────
+
 export const Playground: Story = {
-  render: (args) => (
-    <ButtonPlaygroundWrapper
-      variant={args.variant ?? 'secondary'}
-      size={args.size ?? 'md'}
-      children={String(args.children ?? 'Button')}
-      disabled={args.disabled ?? false}
-      loading={args.loading ?? false}
-      fullWidth={args.fullWidth ?? false}
-    />
-  ),
+  render: (args) => {
+    const a = args as typeof args & { leadingIconName?: string; trailingIconName?: string };
+    return (
+      <Button
+        variant={a.variant ?? 'secondary'}
+        size={a.size ?? 'md'}
+        disabled={a.disabled ?? false}
+        loading={a.loading ?? false}
+        fullWidth={a.fullWidth ?? false}
+        leadingIcon={resolveIcon(a.leadingIconName)}
+        trailingIcon={resolveIcon(a.trailingIconName)}
+      >
+        {String(a.children ?? 'Button')}
+      </Button>
+    );
+  },
 };
 
 export const AllVariants: Story = {
@@ -110,14 +78,10 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-6 p-6">
       {(['sm', 'md', 'lg'] as const).map((size) => (
         <div key={size} className="flex flex-col gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">
-            Size — {size}
-          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Size — {size}</p>
           <div className="flex flex-wrap items-center gap-3">
             {(['primary', 'secondary', 'danger', 'invisible'] as const).map((v) => (
-              <Button key={v} variant={v} size={size}
-                leadingIcon={resolveIcon('Plus')}
-              >
+              <Button key={v} variant={v} size={size} leadingIcon={resolveIcon('Plus')}>
                 {v.charAt(0).toUpperCase() + v.slice(1)}
               </Button>
             ))}
@@ -151,14 +115,8 @@ export const WithIcons: Story = {
 
       <p className="mt-2 text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Both icons</p>
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="primary"
-          leadingIcon={resolveIcon('Plus')}
-          trailingIcon={resolveIcon('CaretDown')}
-        >Add &amp; more</Button>
-        <Button variant="secondary"
-          leadingIcon={resolveIcon('MagnifyingGlass')}
-          trailingIcon={resolveIcon('CaretDown')}
-        >Search</Button>
+        <Button variant="primary"   leadingIcon={resolveIcon('Plus')}           trailingIcon={resolveIcon('CaretDown')}>Add &amp; more</Button>
+        <Button variant="secondary" leadingIcon={resolveIcon('MagnifyingGlass')} trailingIcon={resolveIcon('CaretDown')}>Search</Button>
       </div>
     </div>
   ),
@@ -196,7 +154,8 @@ export const IconOnly: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-3 p-6">
       {['Plus', 'MagnifyingGlass', 'PencilSimple', 'DownloadSimple', 'ArrowCounterClockwise', 'Trash', 'X'].map((name) => (
-        <Button key={name} variant={name === 'Trash' ? 'danger' : name === 'X' ? 'invisible' : name === 'Plus' ? 'primary' : 'secondary'}
+        <Button key={name}
+          variant={name === 'Trash' ? 'danger' : name === 'X' ? 'invisible' : name === 'Plus' ? 'primary' : 'secondary'}
           leadingIcon={resolveIcon(name)} aria-label={name} />
       ))}
     </div>

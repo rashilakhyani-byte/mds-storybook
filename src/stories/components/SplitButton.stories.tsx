@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { ICON_MAP } from '../utils/phosphorIcons';
-import { IconPickerInline } from '../utils/IconPickerInline';
+import { ICON_MAP, ICON_NAMES } from '../utils/phosphorIcons';
 import { SplitButton, type SplitButtonVariant } from '../../components/ui/SplitButton';
 
 const ICON_SIZE = 12;
@@ -10,34 +8,6 @@ function resolveIcon(name: string | undefined) {
   if (!name || name === '(none)') return undefined;
   const Comp = ICON_MAP[name];
   return Comp ? <Comp size={ICON_SIZE} weight="bold" /> : undefined;
-}
-
-// ─── Playground wrapper ────────────────────────────────────────────────────────
-function SplitButtonPlaygroundWrapper({
-  variant, disabled, children,
-}: {
-  variant: SplitButtonVariant;
-  disabled: boolean;
-  children: string;
-}) {
-  const [leading, setLeading] = useState<string | null>('MagnifyingGlass');
-
-  return (
-    <div className="flex flex-col items-center gap-8 p-8">
-      <SplitButton
-        variant={variant}
-        disabled={disabled}
-        leadingIcon={resolveIcon(leading ?? undefined)}
-      >
-        {children}
-      </SplitButton>
-
-      <div className="w-72 rounded-lg border border-[#eef1f6] bg-white p-4 flex flex-col gap-3 shadow-sm">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Icon slot</p>
-        <IconPickerInline value={leading} onChange={setLeading} label="Leading" />
-      </div>
-    </div>
-  );
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -49,34 +19,44 @@ const meta: Meta<typeof SplitButton> = {
     docs: {
       description: {
         component:
-          'Split button — left side triggers an action, right chevron opens a dropdown. Use the icon picker in the canvas to choose the leading icon.',
+          'Split button — left side triggers an action, right chevron opens a dropdown. Use the Leading icon control to pick any Phosphor icon.',
       },
     },
   },
   argTypes: {
-    variant:     { control: 'select', options: ['secondary', 'primary', 'danger', 'invisible'] },
-    disabled:    { control: 'boolean' },
-    children:    { control: 'text' },
-    leadingIcon: { table: { disable: true } },
-  },
+    variant:         { control: 'select', options: ['secondary', 'primary', 'danger', 'invisible'] },
+    disabled:        { control: 'boolean' },
+    children:        { control: 'text' },
+    leadingIcon:     { table: { disable: true } },
+    // Extra arg
+    leadingIconName: { control: 'select', options: ICON_NAMES, name: 'Leading icon' },
+  } as Meta<typeof SplitButton>['argTypes'],
   args: {
     children: 'Button',
     variant: 'secondary',
     disabled: false,
+    ...({ leadingIconName: 'MagnifyingGlass' } as object),
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// ─── Stories ──────────────────────────────────────────────────────────────────
+
 export const Playground: Story = {
-  render: (args) => (
-    <SplitButtonPlaygroundWrapper
-      variant={args.variant ?? 'secondary'}
-      disabled={args.disabled ?? false}
-      children={String(args.children ?? 'Button')}
-    />
-  ),
+  render: (args) => {
+    const a = args as typeof args & { leadingIconName?: string };
+    return (
+      <SplitButton
+        variant={a.variant ?? 'secondary'}
+        disabled={a.disabled ?? false}
+        leadingIcon={resolveIcon(a.leadingIconName)}
+      >
+        {String(a.children ?? 'Button')}
+      </SplitButton>
+    );
+  },
 };
 
 export const AllVariants: Story = {
@@ -89,7 +69,7 @@ export const AllVariants: Story = {
           { variant: 'primary',   icon: 'Plus',            label: 'Create'  },
           { variant: 'danger',    icon: 'Trash',           label: 'Delete'  },
           { variant: 'invisible', icon: 'FunnelSimple',    label: 'Filter'  },
-        ] as const
+        ] as { variant: SplitButtonVariant; icon: string; label: string }[]
       ).map(({ variant, icon, label }) => (
         <div key={variant} className="flex items-center gap-4">
           <span className="w-20 text-[11px] capitalize text-[#626978]">{variant}</span>

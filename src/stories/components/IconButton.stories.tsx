@@ -1,51 +1,13 @@
-import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { ICON_MAP } from '../utils/phosphorIcons';
-import { IconPickerInline } from '../utils/IconPickerInline';
+import { ICON_MAP, ICON_NAMES } from '../utils/phosphorIcons';
 import { IconButton } from '../../components/ui/IconButton';
 
 const SIZE_PX = { sm: 10, md: 12, lg: 14 } as const;
 
-function resolveIcon(name: string, size: number) {
+function resolveIcon(name: string | undefined, size: number) {
+  if (!name || name === '(none)') return null;
   const Comp = ICON_MAP[name];
   return Comp ? <Comp size={size} weight="bold" /> : null;
-}
-
-// ─── Playground wrapper ────────────────────────────────────────────────────────
-function IconButtonPlaygroundWrapper({
-  size, variant, showIndicator, dropdown, disabled, label,
-}: {
-  size: 'sm' | 'md' | 'lg';
-  variant: 'default' | 'active';
-  showIndicator: boolean;
-  dropdown: boolean;
-  disabled: boolean;
-  label: string;
-}) {
-  const [iconName, setIconName] = useState<string | null>('MagnifyingGlass');
-  const sizePx = SIZE_PX[size] ?? 12;
-  const icon = iconName
-    ? (resolveIcon(iconName, sizePx) ?? resolveIcon('MagnifyingGlass', sizePx)!)
-    : resolveIcon('MagnifyingGlass', sizePx)!;
-
-  return (
-    <div className="flex flex-col items-center gap-8 p-8">
-      <IconButton
-        icon={icon}
-        label={label}
-        size={size}
-        variant={variant}
-        showIndicator={showIndicator}
-        dropdown={dropdown}
-        disabled={disabled}
-      />
-
-      <div className="w-72 rounded-lg border border-[#eef1f6] bg-white p-4 flex flex-col gap-3 shadow-sm">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Icon</p>
-        <IconPickerInline value={iconName} onChange={setIconName} label="Icon" />
-      </div>
-    </div>
-  );
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -57,7 +19,7 @@ const meta: Meta<typeof IconButton> = {
     docs: {
       description: {
         component:
-          'Icon-only button. Use the icon picker in the canvas to choose any Phosphor icon.',
+          'Icon-only button. Use the Icon control to pick any Phosphor icon.',
       },
     },
   },
@@ -69,7 +31,9 @@ const meta: Meta<typeof IconButton> = {
     disabled:      { control: 'boolean' },
     label:         { control: 'text' },
     icon:          { table: { disable: true } },
-  },
+    // Extra arg
+    iconName:      { control: 'select', options: ICON_NAMES, name: 'Icon' },
+  } as Meta<typeof IconButton>['argTypes'],
   args: {
     label: 'Action',
     size: 'md',
@@ -77,23 +41,32 @@ const meta: Meta<typeof IconButton> = {
     showIndicator: false,
     dropdown: false,
     disabled: false,
+    ...({ iconName: 'MagnifyingGlass' } as object),
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// ─── Stories ──────────────────────────────────────────────────────────────────
+
 export const Playground: Story = {
-  render: (args) => (
-    <IconButtonPlaygroundWrapper
-      size={args.size ?? 'md'}
-      variant={args.variant ?? 'default'}
-      showIndicator={args.showIndicator ?? false}
-      dropdown={args.dropdown ?? false}
-      disabled={args.disabled ?? false}
-      label={String(args.label ?? 'Action')}
-    />
-  ),
+  render: (args) => {
+    const a = args as typeof args & { iconName?: string };
+    const sizePx = SIZE_PX[a.size ?? 'md'];
+    const icon = resolveIcon(a.iconName, sizePx) ?? resolveIcon('MagnifyingGlass', sizePx)!;
+    return (
+      <IconButton
+        icon={icon}
+        label={String(a.label ?? 'Action')}
+        size={a.size ?? 'md'}
+        variant={a.variant ?? 'default'}
+        showIndicator={a.showIndicator ?? false}
+        dropdown={a.dropdown ?? false}
+        disabled={a.disabled ?? false}
+      />
+    );
+  },
 };
 
 export const AllSizes: Story = {

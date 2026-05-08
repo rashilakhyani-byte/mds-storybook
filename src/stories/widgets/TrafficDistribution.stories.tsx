@@ -1,54 +1,13 @@
-import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { ICON_MAP } from '../utils/phosphorIcons';
-import { IconPickerInline } from '../utils/IconPickerInline';
+import { ICON_MAP, ICON_NAMES } from '../utils/phosphorIcons';
 import { TrafficDistributionWidget, type ChartType } from '../../components/widgets/TrafficDistributionWidget';
 
 const ICON_SIZE = 16;
 
-function resolveIcon(name: string | null) {
+function resolveIcon(name: string | undefined) {
   if (!name || name === '(none)') return undefined;
   const Comp = ICON_MAP[name];
   return Comp ? <Comp size={ICON_SIZE} weight="regular" /> : undefined;
-}
-
-// ─── Playground wrapper (needs hooks for icon picker) ─────────────────────────
-function PlaygroundWrapper({
-  title,
-  chartType,
-  showFilter,
-  showViewToggle,
-  showLegend,
-  legendCount,
-}: {
-  title: string;
-  chartType: ChartType;
-  showFilter: boolean;
-  showViewToggle: boolean;
-  showLegend: boolean;
-  legendCount: 1 | 2 | 3;
-}) {
-  const [iconName, setIconName] = useState<string | null>('ChartBar');
-
-  return (
-    <div className="flex flex-col gap-6 w-full max-w-[900px]">
-      <TrafficDistributionWidget
-        title={title}
-        icon={resolveIcon(iconName)}
-        chartType={chartType}
-        showFilter={showFilter}
-        showViewToggle={showViewToggle}
-        showLegend={showLegend}
-        legendCount={legendCount}
-      />
-
-      {/* Icon picker panel */}
-      <div className="rounded-lg border border-[#eef1f6] bg-white p-4 flex flex-col gap-3 shadow-sm w-72">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Header icon</p>
-        <IconPickerInline value={iconName} onChange={setIconName} label="Icon" />
-      </div>
-    </div>
-  );
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -60,18 +19,19 @@ const meta: Meta<typeof TrafficDistributionWidget> = {
     docs: {
       description: {
         component:
-          'Traffic Distribution widget — grouped bar chart showing Total / External / Internal API traffic over time. Supports title, swappable header icon, chart type (grouped bar / stacked bar / line / area), optional "View by" filter, Breakdown/Trend toggle, and a configurable legend.',
+          'Traffic Distribution widget — grouped bar chart showing Total / External / Internal API traffic over time. Use the Controls panel to change the title, header icon, chart type, and visibility of each section.',
       },
     },
   },
   argTypes: {
     title: { control: 'text', name: 'Widget title' },
     icon:  { table: { disable: true } },
+    // Extra arg — icon name string resolved to ReactNode in render
+    iconName: { control: 'select', options: ICON_NAMES, name: 'Header icon' },
     chartType: {
       control: 'radio',
       options: ['grouped-bar', 'stacked-bar', 'line', 'area'],
       name: 'Chart type',
-      description: 'Grouped Bar · Stacked Bar · Line · Area',
     },
     showFilter:     { control: 'boolean', name: 'Show "View by" filter' },
     showViewToggle: { control: 'boolean', name: 'Show Breakdown/Trend toggle' },
@@ -82,7 +42,7 @@ const meta: Meta<typeof TrafficDistributionWidget> = {
       name: 'Legend items',
       description: 'How many legend items (Total → External → Internal)',
     },
-  },
+  } as Meta<typeof TrafficDistributionWidget>['argTypes'],
   args: {
     title:          'Traffic Distribution',
     chartType:      'grouped-bar',
@@ -90,6 +50,18 @@ const meta: Meta<typeof TrafficDistributionWidget> = {
     showViewToggle: true,
     showLegend:     true,
     legendCount:    3,
+    ...({ iconName: 'ChartBar' } as object),
+  },
+  render: (args) => {
+    const a = args as typeof args & { iconName?: string };
+    return (
+      <div className="w-full max-w-[860px]">
+        <TrafficDistributionWidget
+          {...args}
+          icon={resolveIcon(a.iconName)}
+        />
+      </div>
+    );
   },
 };
 
@@ -98,18 +70,7 @@ type Story = StoryObj<typeof meta>;
 
 // ─── Stories ──────────────────────────────────────────────────────────────────
 
-export const Playground: Story = {
-  render: (args) => (
-    <PlaygroundWrapper
-      title={String(args.title ?? 'Traffic Distribution')}
-      chartType={args.chartType ?? 'grouped-bar'}
-      showFilter={args.showFilter ?? true}
-      showViewToggle={args.showViewToggle ?? true}
-      showLegend={args.showLegend ?? true}
-      legendCount={args.legendCount ?? 3}
-    />
-  ),
-};
+export const Playground: Story = {};
 
 export const GroupedBar: Story = {
   name: 'Grouped Bar',
@@ -157,10 +118,10 @@ export const AllChartTypes: Story = {
   render: () => (
     <div className="flex flex-col gap-8 w-full max-w-[860px]">
       {([
-        { type: 'grouped-bar' as const, label: 'Grouped Bar' },
-        { type: 'stacked-bar' as const, label: 'Stacked Bar' },
-        { type: 'line'        as const, label: 'Line'        },
-        { type: 'area'        as const, label: 'Area'        },
+        { type: 'grouped-bar' as ChartType, label: 'Grouped Bar' },
+        { type: 'stacked-bar' as ChartType, label: 'Stacked Bar' },
+        { type: 'line'        as ChartType, label: 'Line'        },
+        { type: 'area'        as ChartType, label: 'Area'        },
       ]).map(({ type, label }) => (
         <div key={type} className="flex flex-col gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">{label}</p>
