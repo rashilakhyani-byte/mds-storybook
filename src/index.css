@@ -10,6 +10,8 @@
   --color-surface-underground: #f7f8f9;
   --color-surface-hover: #eef1f6;
   --color-surface-action: #0054b6;
+  --color-surface-action-hover: #003571;
+  --color-surface-action-active: #002754;
   --color-surface-table-header: #eef1f6;
 
   /* Text */
@@ -26,17 +28,22 @@
   --color-stroke-subsection: #eef1f6;
   --color-stroke-active: #0265dc;
   --color-stroke-field-border: #a5adbd;
+  --color-stroke-focus: #7e84fc;
 
   /* Brand / Status colors */
   --color-blue-default: #1c8cfd;
   --color-blue-dark: #0054b6;
   --color-blue-medium: #78bbfa;
   --color-blue-subtle: #cae8ff;
+  --color-blue-active-bg: #e0f2ff;
+  --color-blue-active-pressed: #b5deff;
 
   --color-red-medium: #ff7c65;
   --color-red-dark: #d31510;
   --color-red-subtle: #ffddd6;
   --color-red-mellow: #ff9b88;
+  --color-red-danger: #b40000;
+  --color-red-danger-active: #930000;
 
   --color-green-subtle: #cef8e0;
   --color-green-dark: #00653e;

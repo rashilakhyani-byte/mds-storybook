@@ -20,9 +20,9 @@ const sizes: Record<IconButtonSize, { box: string; iconSize: string }> = {
 
 const variants: Record<IconButtonVariant, string> = {
   default:
-    'bg-transparent text-[#40444c] border border-[#cdd2dd] hover:bg-[#eef1f6] active:bg-[#eef1f6] disabled:text-[#858c9b] disabled:border-[#eef1f6]',
+    'bg-transparent text-text-subtle border border-stroke-section hover:bg-surface-hover active:bg-surface-hover disabled:text-text-disabled disabled:border-stroke-subsection',
   active:
-    'bg-[#e0f2ff] text-[#0054b6] border border-[#78bbfa] hover:bg-[#cae8ff] active:bg-[#b5deff] disabled:text-[#858c9b] disabled:border-[#eef1f6]',
+    'bg-blue-active-bg text-blue-dark border border-blue-medium hover:bg-blue-subtle active:bg-blue-active-pressed disabled:text-text-disabled disabled:border-stroke-subsection',
 };
 
 const DropdownCaret = () => (
@@ -32,7 +32,7 @@ const DropdownCaret = () => (
 );
 
 const Indicator = () => (
-  <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[#0265dc] ring-1 ring-white" />
+  <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-stroke-active ring-1 ring-white" />
 );
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -58,7 +58,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         disabled={disabled}
         className={[
           'relative inline-flex items-center justify-center rounded-md transition-colors cursor-pointer',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#147af3] focus-visible:ring-offset-1',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-focus focus-visible:ring-offset-1',
           'disabled:pointer-events-none',
           variants[variant],
           box,

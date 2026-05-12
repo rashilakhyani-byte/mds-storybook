@@ -13,24 +13,24 @@ export interface SplitButtonProps
 
 const actionVariants: Record<SplitButtonVariant, string> = {
   secondary:
-    'bg-white text-[#202124] border-y border-l border-[#cdd2dd] hover:bg-[#eef1f6] active:bg-[#eef1f6] rounded-l-md disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-ground text-text-default border-y border-l border-stroke-section hover:bg-surface-hover active:bg-surface-hover rounded-l-md disabled:bg-surface-l2 disabled:text-text-disabled',
   primary:
-    'bg-[#0054b6] text-white border-y border-l border-[#0054b6] hover:bg-[#003571] active:bg-[#002754] rounded-l-md disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-action text-white border-y border-l border-surface-action hover:bg-surface-action-hover active:bg-surface-action-active rounded-l-md disabled:bg-surface-l2 disabled:text-text-disabled',
   danger:
-    'bg-white text-[#b40000] border-y border-l border-[#eef1f6] hover:bg-[#b40000] hover:text-white active:bg-[#930000] active:text-white rounded-l-md disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-ground text-red-danger border-y border-l border-stroke-subsection hover:bg-red-danger hover:text-white active:bg-red-danger-active active:text-white rounded-l-md disabled:bg-surface-l2 disabled:text-text-disabled',
   invisible:
-    'bg-transparent text-[#202124] border-y border-l border-transparent hover:bg-[#eef1f6] active:bg-[#eef1f6] rounded-l-md disabled:text-[#858c9b]',
+    'bg-transparent text-text-default border-y border-l border-transparent hover:bg-surface-hover active:bg-surface-hover rounded-l-md disabled:text-text-disabled',
 };
 
 const dropdownVariants: Record<SplitButtonVariant, string> = {
   secondary:
-    'bg-white text-[#202124] border border-[#cdd2dd] hover:bg-[#eef1f6] active:bg-[#eef1f6] rounded-r-md border-l-[#eef1f6] disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-ground text-text-default border border-stroke-section hover:bg-surface-hover active:bg-surface-hover rounded-r-md border-l-stroke-subsection disabled:bg-surface-l2 disabled:text-text-disabled',
   primary:
-    'bg-[#0054b6] text-white border border-[#0054b6] hover:bg-[#003571] active:bg-[#002754] rounded-r-md border-l-white/20 disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-action text-white border border-surface-action hover:bg-surface-action-hover active:bg-surface-action-active rounded-r-md border-l-white/20 disabled:bg-surface-l2 disabled:text-text-disabled',
   danger:
-    'bg-white text-[#b40000] border border-[#eef1f6] hover:bg-[#b40000] hover:text-white active:bg-[#930000] active:text-white rounded-r-md border-l-[#eef1f6] disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-ground text-red-danger border border-stroke-subsection hover:bg-red-danger hover:text-white active:bg-red-danger-active active:text-white rounded-r-md border-l-stroke-subsection disabled:bg-surface-l2 disabled:text-text-disabled',
   invisible:
-    'bg-transparent text-[#202124] border border-transparent hover:bg-[#eef1f6] active:bg-[#eef1f6] rounded-r-md disabled:text-[#858c9b]',
+    'bg-transparent text-text-default border border-transparent hover:bg-surface-hover active:bg-surface-hover rounded-r-md disabled:text-text-disabled',
 };
 
 const ChevronDown = () => (
@@ -59,7 +59,7 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(
           onClick={onActionClick}
           className={[
             'inline-flex h-[27px] items-center gap-2 px-3 py-1.5 text-[12px] font-medium transition-colors cursor-pointer',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#147af3] focus-visible:ring-offset-1',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-focus focus-visible:ring-offset-1',
             'disabled:pointer-events-none',
             actionVariants[variant],
           ].join(' ')}
@@ -73,7 +73,7 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(
           aria-label="Open dropdown"
           className={[
             'inline-flex h-[27px] w-7 items-center justify-center transition-colors cursor-pointer',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#147af3] focus-visible:ring-offset-1',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-focus focus-visible:ring-offset-1',
             'disabled:pointer-events-none',
             dropdownVariants[variant],
           ].join(' ')}

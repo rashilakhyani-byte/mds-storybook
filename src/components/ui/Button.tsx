@@ -13,17 +13,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  'inline-flex items-center justify-center font-medium rounded-md transition-colors cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#147af3] focus-visible:ring-offset-1 disabled:pointer-events-none';
+  'inline-flex items-center justify-center font-medium rounded-md transition-colors cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-focus focus-visible:ring-offset-1 disabled:pointer-events-none';
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-[#0054b6] text-white hover:bg-[#003571] active:bg-[#002754] disabled:bg-[#fbfcff] disabled:text-[#858c9b]',
+    'bg-surface-action text-white hover:bg-surface-action-hover active:bg-surface-action-active disabled:bg-surface-l2 disabled:text-text-disabled',
   secondary:
-    'bg-white text-[#202124] border border-[#cdd2dd] hover:bg-[#eef1f6] active:bg-[#eef1f6] disabled:bg-[#fbfcff] disabled:text-[#858c9b] disabled:border-[#eef1f6]',
+    'bg-surface-ground text-text-default border border-stroke-section hover:bg-surface-hover active:bg-surface-hover disabled:bg-surface-l2 disabled:text-text-disabled disabled:border-stroke-subsection',
   danger:
-    'bg-white text-[#b40000] border border-[#eef1f6] hover:bg-[#b40000] hover:text-white hover:border-transparent active:bg-[#930000] active:text-white active:border-transparent disabled:bg-[#fbfcff] disabled:text-[#858c9b] disabled:border-[#eef1f6]',
+    'bg-surface-ground text-red-danger border border-stroke-subsection hover:bg-red-danger hover:text-white hover:border-transparent active:bg-red-danger-active active:text-white active:border-transparent disabled:bg-surface-l2 disabled:text-text-disabled disabled:border-stroke-subsection',
   invisible:
-    'bg-transparent text-[#202124] hover:bg-[#eef1f6] active:bg-[#eef1f6] disabled:text-[#858c9b]',
+    'bg-transparent text-text-default hover:bg-surface-hover active:bg-surface-hover disabled:text-text-disabled',
 };
 
 const sizes: Record<ButtonSize, { container: string; gap: string }> = {
