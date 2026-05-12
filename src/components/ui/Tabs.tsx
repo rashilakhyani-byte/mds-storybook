@@ -75,7 +75,7 @@ export function Tabs({
         <button
           onClick={() => scroll('prev')}
           disabled={!canScrollPrev}
-          className="flex h-[22px] w-full items-center justify-center border-l border-[#eef1f6] text-[#626978] transition-colors hover:bg-[#f7f8f9] disabled:opacity-30"
+          className="flex h-[22px] w-full items-center justify-center border-l border-stroke-subsection text-text-subdued transition-colors hover:bg-surface-underground disabled:opacity-30"
         >
           <CaretUp size={10} weight="bold" />
         </button>
@@ -97,7 +97,7 @@ export function Tabs({
         <button
           onClick={() => scroll('next')}
           disabled={!canScrollNext}
-          className="flex h-[22px] w-full items-center justify-center border-l border-[#eef1f6] text-[#626978] transition-colors hover:bg-[#f7f8f9] disabled:opacity-30"
+          className="flex h-[22px] w-full items-center justify-center border-l border-stroke-subsection text-text-subdued transition-colors hover:bg-surface-underground disabled:opacity-30"
         >
           <CaretDown size={10} weight="bold" />
         </button>
@@ -107,7 +107,7 @@ export function Tabs({
 
   if (variant === 'compound') {
     return (
-      <div className={`inline-flex items-center gap-0 rounded-[8px] border border-[#eef1f6] bg-[#f7f8f9] p-[2px] ${className ?? ''}`}>
+      <div className={`inline-flex items-center gap-0 rounded-[8px] border border-stroke-subsection bg-surface-underground p-[2px] ${className ?? ''}`}>
         {items.map((item) => (
           <CompoundTabItem
             key={item.value}
@@ -123,7 +123,7 @@ export function Tabs({
 
   if (variant === 'panel') {
     return (
-      <div className={`flex items-end border-b border-[#cdd2dd] ${className ?? ''}`}>
+      <div className={`flex items-end border-b border-stroke-section ${className ?? ''}`}>
         {items.map((item) => (
           <PanelTab
             key={item.value}
@@ -139,12 +139,12 @@ export function Tabs({
 
   // Simple horizontal (default)
   return (
-    <div className={`flex items-center shadow-[inset_0_-1px_0_#e5e6e8] ${className ?? ''}`}>
+    <div className={`flex items-center shadow-[inset_0_-1px_0_var(--color-stroke-subsection)] ${className ?? ''}`}>
       {/* scroll left */}
       <button
         onClick={() => scroll('prev')}
         disabled={!canScrollPrev}
-        className="flex h-[32px] shrink-0 items-center justify-center border-r border-[#eef1f6] px-1 text-[#626978] transition-colors hover:bg-[#f7f8f9] disabled:opacity-30"
+        className="flex h-[32px] shrink-0 items-center justify-center border-r border-stroke-subsection px-1 text-text-subdued transition-colors hover:bg-surface-underground disabled:opacity-30"
       >
         <CaretLeft size={10} weight="bold" />
       </button>
@@ -166,7 +166,7 @@ export function Tabs({
       <button
         onClick={() => scroll('next')}
         disabled={!canScrollNext}
-        className="flex h-[32px] shrink-0 items-center justify-center border-l border-[#eef1f6] px-1 text-[#626978] transition-colors hover:bg-[#f7f8f9] disabled:opacity-30"
+        className="flex h-[32px] shrink-0 items-center justify-center border-l border-stroke-subsection px-1 text-text-subdued transition-colors hover:bg-surface-underground disabled:opacity-30"
       >
         <CaretRight size={10} weight="bold" />
       </button>
@@ -195,25 +195,22 @@ function SimpleTabHorizontal({
         item.disabled
           ? 'cursor-not-allowed opacity-50'
           : active
-            ? 'text-black'
-            : 'text-[#626978] hover:bg-[#fbfcff] hover:text-[#40444c]',
+            ? 'text-text-default'
+            : 'text-text-subdued hover:bg-surface-l2 hover:text-text-subtle',
       ].join(' ')}
     >
-      {/* icon */}
       {item.icon && (
-        <span className="shrink-0 text-[#626978]">{item.icon}</span>
+        <span className="shrink-0 text-text-subdued">{item.icon}</span>
       )}
 
-      {/* label */}
       <span className="whitespace-nowrap text-[13px] font-medium leading-[16px]">
         {item.label}
       </span>
 
-      {/* close button */}
       {item.closable && onClose && (
         <button
           onClick={(e) => { e.stopPropagation(); onClose(item.value); }}
-          className="ml-1 flex h-4 w-4 shrink-0 items-center justify-center rounded text-[#626978] opacity-0 transition-opacity hover:bg-[#eef1f6] hover:text-[#202124] group-hover:opacity-100"
+          className="ml-1 flex h-4 w-4 shrink-0 items-center justify-center rounded text-text-subdued opacity-0 transition-opacity hover:bg-surface-hover hover:text-text-default group-hover:opacity-100"
         >
           <X size={10} weight="bold" />
         </button>
@@ -221,11 +218,10 @@ function SimpleTabHorizontal({
 
       {/* active indicator — bottom */}
       {active && (
-        <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-[2px] bg-[#0265dc]" />
+        <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-[2px] bg-stroke-active" />
       )}
-      {/* disabled indicator */}
       {item.disabled && (
-        <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-[2px] bg-[#a5adbd]" />
+        <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-[2px] bg-stroke-field-border" />
       )}
     </div>
   );
@@ -252,11 +248,11 @@ function SimpleTabVertical({
         item.disabled
           ? 'cursor-not-allowed opacity-50'
           : active
-            ? 'text-black'
-            : 'text-[#626978] hover:bg-[#fbfcff] hover:text-[#40444c]',
+            ? 'text-text-default'
+            : 'text-text-subdued hover:bg-surface-l2 hover:text-text-subtle',
       ].join(' ')}
     >
-      {item.icon && <span className="shrink-0 text-[#626978]">{item.icon}</span>}
+      {item.icon && <span className="shrink-0 text-text-subdued">{item.icon}</span>}
 
       <span className="whitespace-nowrap text-[13px] font-medium leading-[16px]">
         {item.label}
@@ -265,7 +261,7 @@ function SimpleTabVertical({
       {item.closable && onClose && (
         <button
           onClick={(e) => { e.stopPropagation(); onClose(item.value); }}
-          className="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded text-[#626978] opacity-0 transition-opacity hover:bg-[#eef1f6] group-hover:opacity-100"
+          className="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded text-text-subdued opacity-0 transition-opacity hover:bg-surface-hover group-hover:opacity-100"
         >
           <X size={10} weight="bold" />
         </button>
@@ -273,10 +269,10 @@ function SimpleTabVertical({
 
       {/* active indicator — left bar */}
       {active && (
-        <span className="absolute bottom-[2px] left-0 top-0 w-[3px] rounded-[2px] bg-[#0265dc]" />
+        <span className="absolute bottom-[2px] left-0 top-0 w-[3px] rounded-[2px] bg-stroke-active" />
       )}
       {item.disabled && (
-        <span className="absolute bottom-[2px] left-0 top-0 w-[3px] rounded-[2px] bg-[#a5adbd]" />
+        <span className="absolute bottom-[2px] left-0 top-0 w-[3px] rounded-[2px] bg-stroke-field-border" />
       )}
     </div>
   );
@@ -307,8 +303,8 @@ function CompoundTabItem({
         item.disabled
           ? 'cursor-not-allowed opacity-40'
           : active
-            ? 'bg-white text-[#202124] shadow-[0px_1px_1px_0px_rgba(9,30,66,0.18),0px_0px_1px_0px_rgba(9,30,66,0.25)]'
-            : 'cursor-pointer text-[#40444c] hover:text-[#202124]',
+            ? 'bg-surface-ground text-text-default shadow-[0px_1px_1px_0px_rgba(9,30,66,0.18),0px_0px_1px_0px_rgba(9,30,66,0.25)]'
+            : 'cursor-pointer text-text-subtle hover:text-text-default',
       ].join(' ')}
     >
       {item.icon && <span className="shrink-0">{item.icon}</span>}
@@ -337,10 +333,10 @@ function PanelTab({
         'group relative flex items-center gap-[6px] rounded-t-[2px] py-[6px] text-[12px] font-medium leading-[16px] transition-colors',
         item.closable ? 'pl-3 pr-[6px]' : 'px-3',
         active
-          ? 'border border-b-0 border-[#cdd2dd] bg-white text-[#202124] shadow-[0_1px_0_white]'
+          ? 'border border-b-0 border-stroke-section bg-surface-ground text-text-default shadow-[0_1px_0_var(--color-surface-ground)]'
           : item.disabled
-            ? 'cursor-not-allowed border border-transparent text-[#a5adbd]'
-            : 'border border-transparent bg-transparent text-[#626978] hover:bg-[#f7f8f9] hover:text-[#40444c]',
+            ? 'cursor-not-allowed border border-transparent text-stroke-field-border'
+            : 'border border-transparent bg-transparent text-text-subdued hover:bg-surface-underground hover:text-text-subtle',
       ].join(' ')}
     >
       {item.icon && <span className="shrink-0">{item.icon}</span>}
@@ -349,7 +345,7 @@ function PanelTab({
         <span
           role="button"
           onClick={(e) => { e.stopPropagation(); onClose(item.value); }}
-          className="ml-1 flex h-4 w-4 shrink-0 items-center justify-center rounded text-[#858c9b] opacity-0 transition-opacity hover:bg-[#eef1f6] group-hover:opacity-100"
+          className="ml-1 flex h-4 w-4 shrink-0 items-center justify-center rounded text-text-disabled opacity-0 transition-opacity hover:bg-surface-hover group-hover:opacity-100"
         >
           <X size={10} weight="bold" />
         </span>
