@@ -17,7 +17,8 @@ export interface TabsProps {
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
   orientation?: 'horizontal' | 'vertical';
-  variant?: 'simple' | 'panel';
+  variant?: 'simple' | 'panel' | 'compound';
+  size?: 'default' | 'small';
   className?: string;
 }
 
@@ -30,6 +31,7 @@ export function Tabs({
   onClose,
   orientation = 'horizontal',
   variant = 'simple',
+  size = 'default',
   className,
 }: TabsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -99,6 +101,22 @@ export function Tabs({
         >
           <CaretDown size={10} weight="bold" />
         </button>
+      </div>
+    );
+  }
+
+  if (variant === 'compound') {
+    return (
+      <div className={`inline-flex items-center gap-0 rounded-[8px] border border-[#eef1f6] bg-[#f7f8f9] p-[2px] ${className ?? ''}`}>
+        {items.map((item) => (
+          <CompoundTabItem
+            key={item.value}
+            item={item}
+            active={item.value === value}
+            size={size}
+            onClick={() => !item.disabled && onChange?.(item.value)}
+          />
+        ))}
       </div>
     );
   }
@@ -261,6 +279,41 @@ function SimpleTabVertical({
         <span className="absolute bottom-[2px] left-0 top-0 w-[3px] rounded-[2px] bg-[#a5adbd]" />
       )}
     </div>
+  );
+}
+
+// ─── CompoundTabItem ──────────────────────────────────────────────────────────
+
+function CompoundTabItem({
+  item, active, size, onClick,
+}: {
+  item: TabItem;
+  active: boolean;
+  size: 'default' | 'small';
+  onClick: () => void;
+}) {
+  const isSmall = size === 'small';
+  return (
+    <button
+      role="tab"
+      aria-selected={active}
+      disabled={item.disabled}
+      onClick={onClick}
+      className={[
+        'flex select-none items-center gap-1 rounded-[6px] font-medium transition-colors',
+        isSmall
+          ? 'h-4 px-2 text-[11px] leading-4'
+          : 'px-4 py-1 text-[12px] leading-4',
+        item.disabled
+          ? 'cursor-not-allowed opacity-40'
+          : active
+            ? 'bg-white text-[#202124] shadow-[0px_1px_1px_0px_rgba(9,30,66,0.18),0px_0px_1px_0px_rgba(9,30,66,0.25)]'
+            : 'cursor-pointer text-[#40444c] hover:text-[#202124]',
+      ].join(' ')}
+    >
+      {item.icon && <span className="shrink-0">{item.icon}</span>}
+      <span className="whitespace-nowrap">{item.label}</span>
+    </button>
   );
 }
 

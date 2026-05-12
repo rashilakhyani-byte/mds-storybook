@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import {
   House, MagnifyingGlass, Bell, Gear, User, FileText,
-  ChartBar, Lock, Globe, Tag,
+  ChartBar, Lock, Globe, Tag, ChartLine, Database,
 } from '@phosphor-icons/react';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
 
@@ -83,6 +83,24 @@ const VERTICAL_TABS: TabItem[] = [
   { value: 'settings',   label: 'Settings',    icon: <Gear      size={ICON_SIZE} /> },
 ];
 
+const COMPOUND_TABS: TabItem[] = [
+  { value: 'breakdown', label: 'Breakdown' },
+  { value: 'trend',     label: 'Trend'     },
+  { value: 'summary',   label: 'Summary'   },
+];
+
+const COMPOUND_ICON_TABS: TabItem[] = [
+  { value: 'bar',   label: 'Bar',   icon: <ChartBar  size={12} /> },
+  { value: 'line',  label: 'Line',  icon: <ChartLine size={12} /> },
+  { value: 'table', label: 'Table', icon: <Database  size={12} /> },
+];
+
+const COMPOUND_MIXED: TabItem[] = [
+  { value: 'a', label: 'Active'   },
+  { value: 'b', label: 'Normal'   },
+  { value: 'c', label: 'Disabled', disabled: true },
+];
+
 // ─── Meta ─────────────────────────────────────────────────────────────────────
 const meta: Meta<typeof Tabs> = {
   title: 'Components/Tabs',
@@ -92,13 +110,14 @@ const meta: Meta<typeof Tabs> = {
     docs: {
       description: {
         component:
-          'MDS Tabs — **simple** (underline indicator) and **panel** (browser-tab border) variants. Supports horizontal and vertical orientation, optional icons, closable tabs, and scrolling when there are too many tabs to fit.',
+          'MDS Tabs — **simple** (underline indicator) and **compound** (segmented pill switcher) variants. Supports horizontal and vertical orientation, optional icons, closable tabs, and scrolling when there are too many tabs to fit.',
       },
     },
   },
   argTypes: {
     orientation: { control: 'radio',   options: ['horizontal', 'vertical'] },
-    variant:     { control: 'radio',   options: ['simple', 'panel'] },
+    variant:     { control: 'radio',   options: ['simple', 'compound'] },
+    size:        { control: 'radio',   options: ['default', 'small'] },
     items:       { table: { disable: true } },
     value:       { table: { disable: true } },
     onChange:    { table: { disable: true } },
@@ -107,6 +126,7 @@ const meta: Meta<typeof Tabs> = {
   args: {
     orientation: 'horizontal',
     variant:     'simple',
+    size:        'default',
   },
   render: (args) => (
     <div className="w-full max-w-[600px]">
@@ -168,21 +188,30 @@ export const SimpleVertical: Story = {
   ),
 };
 
-export const PanelVariant: Story = {
-  name: 'Panel (browser-tab style)',
+export const CompoundVariant: Story = {
+  name: 'Compound (segmented pill)',
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-8 w-full max-w-[600px]">
       <div className="flex flex-col gap-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">With close buttons</p>
-        <ControlledTabs items={PANEL_TABS} variant="panel" />
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Default size — labels only</p>
+        <ControlledTabs items={COMPOUND_TABS} variant="compound" />
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Without close buttons</p>
-        <ControlledTabs
-          items={PANEL_TABS.map((t) => ({ ...t, closable: false }))}
-          variant="panel"
-        />
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Default size — with icons</p>
+        <ControlledTabs items={COMPOUND_ICON_TABS} variant="compound" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Small size — labels only</p>
+        <ControlledTabs items={COMPOUND_TABS} variant="compound" size="small" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Small size — with icons</p>
+        <ControlledTabs items={COMPOUND_ICON_TABS} variant="compound" size="small" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">With disabled tab</p>
+        <ControlledTabs items={COMPOUND_MIXED} variant="compound" value="a" />
       </div>
     </div>
   ),
@@ -238,7 +267,15 @@ export const AllVariants: Story = {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Panel · Horizontal</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Compound · Default size</p>
+        <ControlledTabs items={COMPOUND_ICON_TABS} variant="compound" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Compound · Small size</p>
+        <ControlledTabs items={COMPOUND_ICON_TABS} variant="compound" size="small" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#858c9b]">Panel · Horizontal (browser-tab style)</p>
         <ControlledTabs items={PANEL_TABS} variant="panel" orientation="horizontal" />
       </div>
     </div>
